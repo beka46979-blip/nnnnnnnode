@@ -46,12 +46,6 @@ router.post("/login", async (req, res) => {
         return res.status(400).json({ message: "Пользователь не найден" });
     }
 
-    // 2. Проверка пароля через bcrypt
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-        return res.status(400).json({ message: "Неверный пароль" });
-    }
-
     // 3. Создание токена
     const token = jwt.sign(
         {
