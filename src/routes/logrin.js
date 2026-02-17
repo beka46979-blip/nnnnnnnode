@@ -1,9 +1,10 @@
 const router = require('express').Router();
 const users = require('../data/users');
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcrypt");
 
-const secret = "secret"
+const secret = "secret";
+
 /**
  * @swagger
  * /login:
@@ -22,10 +23,8 @@ const secret = "secret"
  *             properties:
  *               email:
  *                 type: string
- *                 description: Почта пользователя
  *               password:
  *                 type: string
- *                 description: Пароль пользователя
  *     responses:
  *       200:
  *         description: Успешный вход
@@ -33,35 +32,41 @@ const secret = "secret"
  *         description: Неверные данные
  */
 
-router.post("/login", (req, res) => {
+router.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
-    const token = jwt.sign({
-			id:user.id,
-			name:user.name,
-			email:user.email,
-		},secret,
-	{expiresIn:"10d"});
+    // Проверка, что email и пароль переданы
+    if (!email || !password) {
+        return res.status(400).json({ message: "Введите email и пароль" });
+    }
 
-
-    // Проверяем существует ли пользователь
+    // 1. Поиск пользователя
     const user = users.find(u => u.email === email);
-
     if (!user) {
-        return res.status(400).json({
-            message: "Пользователь не найден"
-        });
+        return res.status(400).json({ message: "Пользователь не найден" });
     }
 
-    // Проверяем пароль
-    if (user.password !== password) {
-        return res.status(400).json({
-            message: "Неверный пароль"
-        });
+    // 2. Проверка пароля через bcrypt
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+        return res.status(400).json({ message: "Неверный пароль" });
     }
 
-    res.json({
+    // 3. Создание токена
+    const token = jwt.sign(
+        {
+            id: user.id,
+            name: user.name,
+            email: user.email
+        },
+        secret,
+        { expiresIn: "10d" }
+    );
+
+    // 4. Отправка ответа
+    return res.json({
         message: "Вход выполнен успешно",
+        token,
         user: {
             id: user.id,
             name: user.name,
