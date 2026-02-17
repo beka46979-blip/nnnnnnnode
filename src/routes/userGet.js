@@ -20,7 +20,7 @@ const auth = require('../middleware/auth');
  *         description: A successful response
  */
 
-router.delete('/', auth, (req, res) => {
+router.get('/', auth, (req, res) => {
     const { name } = req.query;
 
     const filtered = users.find(u => u.name === name);

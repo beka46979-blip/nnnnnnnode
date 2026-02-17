@@ -21,7 +21,7 @@ const options = {
                     bearerFormat: "JWT"
                 }
             }
-        },
+        },  
 
         security: [
             {
