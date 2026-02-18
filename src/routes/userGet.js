@@ -14,7 +14,6 @@ const auth = require('../middleware/auth');
  *         schema:
  *           type: string
  *         description: User name
- *      
  *     responses:
  *       200:
  *         description: A successful response
